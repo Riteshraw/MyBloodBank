@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ProgressBar progressBar;
     private Context context;
     private LatLng searchedLatLng;
+    GPSTracker gps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 progressBar.setVisibility(View.INVISIBLE);
             }
         });
+
+        findViewById(R.id.btn_locate).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // create class object
+                gps = new GPSTracker(context);
+
+                // check if GPS enabled
+                if(gps.canGetLocation()){
+
+                    double latitude = gps.getLatitude();
+                    double longitude = gps.getLongitude();
+
+                    // \n is for new line
+                    Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+                    AddMarker(new LatLng(latitude,longitude),"Me",R.mipmap.user_map_icon);
+                }else{
+                    // can't get location
+                    // GPS or Network is not enabled
+                    // Ask user to enable GPS/network in settings
+                    gps.showSettingsAlert();
+                }
+            }
+        });
+
     }
 
     @Override
